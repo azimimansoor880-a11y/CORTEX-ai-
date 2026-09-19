@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CORTEX AI Studio v0.5</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#09090b;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+
+.wrap{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+h1{
+  margin-bottom:5px;
+}
+
+.muted{
+  color:#999;
+}
+
+.card{
+  background:#141417;
+  border:1px solid #29292e;
+  border-radius:18px;
+  padding:18px;
+  margin-top:20px;
+}
+
+textarea{
+  width:100%;
+  min-height:150px;
+  background:#0e0e11;
+  color:#fff;
+  border:1px solid #333;
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;
+  resize:vertical;
+}
+
+button{
+  margin-top:12px;
+  margin-right:8px;
+  padding:13px 18px;
+  border:0;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#generate{
+  background:#fff;
+  color:#000;
+}
+
+#copy{
+  background:#29292e;
+  color:#fff;
+}
+
+button:disabled{
+  opacity:.5;
+}
+
+#status{
+  margin-top:15px;
+  color:#aaa;
+}
+
+#out img{
+  width:100%;
+  max-width:900px;
+  margin-top:18px;
+  border-radius:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h1>⚡ CORTEX AI Studio v0.5</h1>
+
+<div class="muted">
+Real AI Image Generator
+</div>
+
+<div class="card">
+
+<h3>🎬 Scene Prompt</h3>
+
+<textarea id="prompt">Cinematic photorealistic luxury music video scene, a confident male artist standing beside a black Porsche 911 on a clean European street at golden hour, premium black fashion, cinematic composition, realistic reflections, bright dramatic lighting, luxury atmosphere, ultra detailed, photorealistic, 16:9, no text, no watermark.</textarea>
+
+<button id="generate">
+Generate Image 🔥
+</button>
+
+<button id="copy">
+Copy Prompt
+</button>
+
+<div id="status"></div>
+
+<div id="out"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const promptBox = document.getElementById("prompt");
+const statusBox = document.getElementById("status");
+const outputBox = document.getElementById("out");
+const generateButton = document.getElementById("generate");
+const copyButton = document.getElementById("copy");
+
+copyButton.addEventListener("click", async () => {
+
+  try {
+
+    await navigator.clipboard.writeText(promptBox.value);
+
+    statusBox.textContent = "✅ Prompt copied.";
+
+  } catch {
+
+    statusBox.textContent = "Copy failed.";
+
+  }
+
+});
+
+
+generateButton.addEventListener("click", async () => {
+
+  generateButton.disabled = true;
+
+  outputBox.innerHTML = "";
+
+  statusBox.textContent = "🔥 CORTEX is generating the image...";
+
+  try {
+
+    const response = await fetch("/api/generate-image", {
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+        prompt:promptBox.value
+      })
+
+    });
+
+    const data = await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error || "Image generation failed."
+      );
+
+    }
+
+    const image = document.createElement("img");
+
+    image.src =
+      "data:" +
+      data.mime +
+      ";base64," +
+      data.image;
+
+    outputBox.appendChild(image);
+
+    statusBox.textContent =
+      "✅ Done! CORTEX generated the image.";
+
+  }
+
+  catch(error){
+
+    statusBox.textContent =
+      "❌ Error: " + error.message;
+
+  }
+
+  finally{
+
+    generateButton.disabled = false;
+
+  }
+
+});
+
+</script>
+
+</body>
+  </html>
