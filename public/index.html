@@ -3,86 +3,191 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CORTEX AI Studio v0.5</title>
+<title>CORTEX AI Studio v0.6</title>
 
 <style>
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  background:#09090b;
+  background:#08090c;
   color:#fff;
-  font-family:Arial,sans-serif;
+  font-family:Arial,sans-serif
 }
 
 .wrap{
-  max-width:900px;
+  max-width:980px;
   margin:auto;
-  padding:20px;
+  padding:18px
 }
 
-h1{
-  margin-bottom:5px;
+.hero{
+  padding:10px 2px 4px
+}
+
+.hero h1{
+  margin:0;
+  font-size:30px
 }
 
 .muted{
-  color:#999;
+  color:#9297a3
 }
 
 .card{
-  background:#141417;
-  border:1px solid #29292e;
+  background:#121419;
+  border:1px solid #292d36;
   border-radius:18px;
   padding:18px;
-  margin-top:20px;
+  margin-top:16px
 }
 
-textarea{
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center
+}
+
+input[type=file]{
   width:100%;
-  min-height:150px;
-  background:#0e0e11;
-  color:#fff;
-  border:1px solid #333;
+  padding:12px;
+  background:#0d0f13;
+  border:1px solid #30343d;
   border-radius:12px;
-  padding:14px;
-  font-size:15px;
-  resize:vertical;
+  color:#ddd
 }
 
 button{
-  margin-top:12px;
-  margin-right:8px;
-  padding:13px 18px;
   border:0;
   border-radius:12px;
-  font-weight:bold;
-  cursor:pointer;
+  padding:12px 16px;
+  font-weight:700;
+  cursor:pointer
 }
 
-#generate{
+button.primary{
   background:#fff;
-  color:#000;
+  color:#000
 }
 
-#copy{
-  background:#29292e;
-  color:#fff;
+button.secondary{
+  background:#292e37;
+  color:#fff
 }
 
 button:disabled{
-  opacity:.5;
+  opacity:.45;
+  cursor:not-allowed
 }
 
-#status{
-  margin-top:15px;
-  color:#aaa;
+.meta{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px
 }
 
-#out img{
+.pill{
+  background:#1b1f27;
+  border:1px solid #30343d;
+  border-radius:999px;
+  padding:8px 11px;
+  color:#d7dbe2
+}
+
+.progress{
+  height:8px;
+  background:#22262e;
+  border-radius:99px;
+  overflow:hidden;
+  margin-top:14px
+}
+
+.bar{
+  height:100%;
+  width:0;
+  background:#fff;
+  transition:.2s
+}
+
+.scenes{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+  margin-top:14px
+}
+
+.scene{
+  background:#0d0f13;
+  border:1px solid #2a2e36;
+  border-radius:16px;
+  padding:14px
+}
+
+.scene h3{
+  margin:0 0 7px
+}
+
+.scene small{
+  color:#888f9b
+}
+
+.prompt{
   width:100%;
-  max-width:900px;
-  margin-top:18px;
-  border-radius:15px;
+  min-height:115px;
+  margin-top:10px;
+  background:#090b0e;
+  color:#fff;
+  border:1px solid #30343d;
+  border-radius:11px;
+  padding:12px;
+  resize:vertical
+}
+
+.preview{
+  width:100%;
+  margin-top:12px;
+  border-radius:12px;
+  display:block
+}
+
+.status{
+  margin-top:10px;
+  color:#aeb4bf;
+  min-height:20px
+}
+
+.badge{
+  font-size:12px;
+  padding:5px 8px;
+  border-radius:7px;
+  background:#20242c;
+  color:#cdd2da;
+  float:right
+}
+
+.empty{
+  color:#777f8c;
+  text-align:center;
+  padding:20px
+}
+
+.footer{
+  color:#666d78;
+  text-align:center;
+  margin:20px 0 5px;
+  font-size:12px
+}
+
+@media(min-width:760px){
+  .scenes{
+    grid-template-columns:1fr 1fr
+  }
+
+  .scene:first-child{
+    grid-column:1/-1
+  }
 }
 </style>
 </head>
@@ -91,102 +196,452 @@ button:disabled{
 
 <div class="wrap">
 
-<h1>⚡ CORTEX AI Studio v0.5</h1>
-
+<div class="hero">
+<h1>⚡ CORTEX AI Studio v0.6</h1>
 <div class="muted">
-Real AI Image Generator
+Song → 7 scenes → AI images
 </div>
+</div>
+
 
 <div class="card">
 
-<h3>🎬 Scene Prompt</h3>
+<h2>🎵 1. Upload your song</h2>
 
-<textarea id="prompt">Cinematic photorealistic luxury music video scene, a confident male artist standing beside a black Porsche 911 on a clean European street at golden hour, premium black fashion, cinematic composition, realistic reflections, bright dramatic lighting, luxury atmosphere, ultra detailed, photorealistic, 16:9, no text, no watermark.</textarea>
+<input
+id="audio"
+type="file"
+accept="audio/*"
+>
 
-<button id="generate">
-Generate Image 🔥
-</button>
+<div class="meta">
 
-<button id="copy">
-Copy Prompt
-</button>
+<div class="pill" id="fileName">
+No song selected
+</div>
 
-<div id="status"></div>
-
-<div id="out"></div>
-
+<div class="pill" id="duration">
+Duration: —
 </div>
 
 </div>
+
+<button
+id="analyze"
+class="primary"
+disabled
+>
+Build 7 Scenes 🔥
+</button>
+
+<div
+class="status"
+id="mainStatus"
+></div>
+
+<div class="progress">
+<div
+class="bar"
+id="bar"
+></div>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>🎬 2. Storyboard</h2>
+
+<div
+id="scenes"
+class="scenes"
+>
+
+<div class="empty">
+Upload a song and tap “Build 7 Scenes”.
+</div>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+CORTEX AI Studio v0.6
+</div>
+
+</div>
+
 
 <script>
 
-const promptBox = document.getElementById("prompt");
-const statusBox = document.getElementById("status");
-const outputBox = document.getElementById("out");
-const generateButton = document.getElementById("generate");
-const copyButton = document.getElementById("copy");
+const audio =
+document.getElementById('audio');
 
-copyButton.addEventListener("click", async () => {
+const analyze =
+document.getElementById('analyze');
 
-  try {
+const fileName =
+document.getElementById('fileName');
 
-    await navigator.clipboard.writeText(promptBox.value);
+const durationEl =
+document.getElementById('duration');
 
-    statusBox.textContent = "✅ Prompt copied.";
+const status =
+document.getElementById('mainStatus');
 
-  } catch {
+const bar =
+document.getElementById('bar');
 
-    statusBox.textContent = "Copy failed.";
+const scenesBox =
+document.getElementById('scenes');
 
-  }
+let songDuration = 0;
+
+
+function fmt(sec){
+
+if(!isFinite(sec))
+return '—';
+
+const m =
+Math.floor(sec/60);
+
+const s =
+Math.floor(sec%60);
+
+return `${m}:${String(s).padStart(2,'0')}`;
+
+}
+
+
+function buildPrompt(scene){
+
+const common =
+'CORTEX cinematic music video, same fictional male artist throughout, premium black fashion, photorealistic, realistic skin and reflections, luxury atmosphere, bright cinematic lighting, high detail, coherent visual identity, no text, no watermark, 16:9.';
+
+
+const ideas = [
+
+'Powerful opening establishing shot, artist beside a black Porsche 911 on a clean European street at golden hour, confident cinematic presence.',
+
+'Artist walking through an elegant modern European city street, low camera angle, Porsche visible in the background, energetic verse mood.',
+
+'Main chorus moment, artist beside the Porsche with dramatic sunrise light, wind and subtle motion, wide heroic composition.',
+
+'Night-to-evening transition in a premium city district, wet pavement reflections, luxury car, intense performance atmosphere but still clean and visible.',
+
+'Close cinematic performance scene near the Porsche, expressive confident pose, architectural background, strong depth of field.',
+
+'Final chorus, open scenic location, bright sunset, artist and Porsche framed together, larger-than-life cinematic feeling.',
+
+'Outro, artist driving away on an elegant European road at blue hour, rear three-quarter Porsche shot, calm powerful ending.'
+
+];
+
+return common + ' ' + ideas[scene-1];
+
+}
+
+
+function renderScenes(){
+
+const names = [
+
+'Intro',
+'Verse 1',
+'Chorus',
+'Verse 2',
+'Bridge',
+'Final Chorus',
+'Outro'
+
+];
+
+
+scenesBox.innerHTML = '';
+
+
+for(let i=1;i<=7;i++){
+
+const start =
+Math.round((i-1)*songDuration/7);
+
+const end =
+Math.round(i*songDuration/7);
+
+
+const el =
+document.createElement('div');
+
+el.className = 'scene';
+
+
+el.innerHTML = `
+
+<span class="badge">
+Scene ${i}
+</span>
+
+<h3>
+${names[i-1]}
+</h3>
+
+<small>
+${fmt(start)} — ${fmt(end)}
+</small>
+
+<textarea
+class="prompt"
+id="p${i}"
+>${buildPrompt(i)}</textarea>
+
+<div class="row">
+
+<button
+class="primary gen"
+data-i="${i}"
+>
+Generate Image 🖼️
+</button>
+
+<button
+class="secondary copy"
+data-i="${i}"
+>
+Copy Prompt
+</button>
+
+</div>
+
+<div
+class="status"
+id="s${i}"
+></div>
+
+<div
+id="o${i}"
+></div>
+
+`;
+
+
+scenesBox.appendChild(el);
+
+}
+
+
+document
+.querySelectorAll('.gen')
+.forEach(b => {
+
+b.addEventListener(
+'click',
+() => generate(
+Number(b.dataset.i)
+)
+);
 
 });
 
 
-generateButton.addEventListener("click", async () => {
+document
+.querySelectorAll('.copy')
+.forEach(b => {
 
-  generateButton.disabled = true;
+b.addEventListener(
+'click',
+async () => {
 
-  outputBox.innerHTML = "";
+const p =
+document.getElementById(
+'p'+b.dataset.i
+);
 
-  statusBox.textContent = "🔥 CORTEX is generating the image...";
+await navigator.clipboard
+.writeText(p.value);
 
-  try {
+document.getElementById(
+'s'+b.dataset.i
+).textContent =
+'✅ Prompt copied.';
 
-    const response = await fetch("/api/generate-image", {
+}
+);
 
-      method:"POST",
+});
 
-      headers:{
-        "Content-Type":"application/json"
-      },
+}
 
-      body:JSON.stringify({
-        prompt:promptBox.value
-      })
 
-    });
+audio.addEventListener(
+'change',
+() => {
 
-    const data = await response.json();
+const f =
+audio.files[0];
 
-    if(!response.ok){
+if(!f)
+return;
 
-      throw new Error(
-        data.error || "Image generation failed."
-      );
+fileName.textContent =
+f.name;
 
-    }
+const url =
+URL.createObjectURL(f);
 
-    const image = document.createElement("img");
+const a =
+new Audio();
 
-    image.src =
-      "data:" +
-      data.mime +
-      ";base64," +
-      data.image;
+a.src = url;
 
-    outputBox.appendChild(image);
+a.onloadedmetadata =
+() => {
+
+songDuration =
+a.duration;
+
+durationEl.textContent =
+'Duration: ' + fmt(songDuration);
+
+analyze.disabled = false;
+
+URL.revokeObjectURL(url);
+
+};
+
+});
+
+
+analyze.addEventListener(
+'click',
+() => {
+
+if(!songDuration)
+return;
+
+renderScenes();
+
+bar.style.width =
+'100%';
+
+status.textContent =
+'✅ 7 scenes created from the song duration.';
+
+window.scrollTo({
+top:document.body.scrollHeight,
+behavior:'smooth'
+});
+
+});
+
+
+async function generate(i){
+
+const btn =
+document.querySelector(
+`.gen[data-i="${i}"]`
+);
+
+const st =
+document.getElementById(
+'s'+i
+);
+
+const out =
+document.getElementById(
+'o'+i
+);
+
+const prompt =
+document.getElementById(
+'p'+i
+).value.trim();
+
+
+btn.disabled = true;
+
+out.innerHTML = '';
+
+st.textContent =
+'🔥 Generating Scene '+i+'...';
+
+
+try{
+
+const r =
+await fetch(
+'/api/generate-image',
+{
+method:'POST',
+
+headers:{
+'Content-Type':
+'application/json'
+},
+
+body:JSON.stringify({
+prompt
+})
+
+}
+);
+
+
+const d =
+await r.json();
+
+
+if(!r.ok){
+
+throw new Error(
+d.error ||
+'Image generation failed.'
+);
+
+}
+
+
+const img =
+document.createElement('img');
+
+img.className =
+'preview';
+
+img.src =
+'data:' +
+d.mime +
+';base64,' +
+d.image;
+
+out.appendChild(img);
+
+st.textContent =
+'✅ Scene '+i+' generated.';
+
+
+}
+
+catch(e){
+
+st.textContent =
+'❌ ' + e.message;
+
+}
+
+finally{
+
+btn.disabled = false;
+
+}
+
+}
+
+</script>
+
+</body>
+  </html>
 
     statusBox.textContent =
       "✅ Done! CORTEX generated the image.";
