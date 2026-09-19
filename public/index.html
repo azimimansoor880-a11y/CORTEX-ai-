@@ -10,7 +10,7 @@
   content="width=device-width,initial-scale=1"
 >
 
-<title>CORTEX AI Studio v0.7</title>
+<title>CORTEX AI Studio v0.8</title>
 
 <style>
 
@@ -183,16 +183,18 @@ textarea{
   display:block;
 }
 
+.video-preview{
+  width:100%;
+  margin-top:13px;
+  border-radius:13px;
+  display:block;
+  background:#000;
+}
+
 .empty{
   color:#777f8c;
   text-align:center;
   padding:25px;
-}
-
-.big-button{
-  width:100%;
-  font-size:16px;
-  padding:15px;
 }
 
 .footer{
@@ -200,6 +202,17 @@ textarea{
   color:#626a76;
   margin:22px 0 5px;
   font-size:12px;
+}
+
+.big-button{
+  width:100%;
+  margin-top:14px;
+}
+
+.video-box{
+  margin-top:15px;
+  padding-top:15px;
+  border-top:1px solid #252932;
 }
 
 @media(min-width:760px){
@@ -229,11 +242,13 @@ textarea{
 <h1>⚡ CORTEX AI Studio</h1>
 
 <div class="muted">
-AI Music Video Director — v0.7
+AI Music Video Director — v0.8
 </div>
 
 </div>
 
+
+<!-- SONG -->
 
 <div class="card">
 
@@ -291,6 +306,7 @@ Duration: —
 </div>
 
 
+<!-- STORYBOARD -->
 
 <div class="card">
 
@@ -310,6 +326,7 @@ Upload a song to begin.
 </div>
 
 
+<!-- IMAGE PRODUCTION -->
 
 <div
   id="controlCard"
@@ -317,10 +334,10 @@ Upload a song to begin.
   style="display:none"
 >
 
-<h2>🔥 AI Image Production</h2>
+<h2>🖼️ AI Image Production</h2>
 
 <div class="muted">
-Generate all seven cinematic scenes automatically.
+Generate the seven cinematic images.
 </div>
 
 
@@ -349,10 +366,60 @@ Generate all seven cinematic scenes automatically.
 </div>
 
 
+<!-- VIDEO PRODUCTION -->
+
+<div
+  id="videoCard"
+  class="card"
+  style="display:none"
+>
+
+<h2>🎥 AI Video Production</h2>
+
+<div class="muted">
+Turn the seven generated images into cinematic AI videos.
+</div>
+
+
+<button
+  id="generateVideos"
+  class="primary big-button"
+  disabled
+>
+🎥 Generate All 7 Videos
+</button>
+
+
+<button
+  id="stopVideos"
+  class="danger big-button"
+  disabled
+>
+⛔ Stop Video Generation
+</button>
+
+
+<div
+  id="videoStatus"
+  class="status"
+></div>
+
+
+<div class="progress">
+
+<div
+  id="videoBar"
+  class="bar"
+></div>
+
+</div>
+
+</div>
+
 
 <div class="footer">
 
-CORTEX AI Studio v0.7
+CORTEX AI Studio v0.8
 
 </div>
 
@@ -396,26 +463,37 @@ document.getElementById("stopAll");
 const allStatus =
 document.getElementById("allStatus");
 
+const videoCard =
+document.getElementById("videoCard");
+
+const generateVideos =
+document.getElementById("generateVideos");
+
+const stopVideos =
+document.getElementById("stopVideos");
+
+const videoStatus =
+document.getElementById("videoStatus");
+
+const videoBar =
+document.getElementById("videoBar");
+
 
 let songDuration = 0;
 
 let stopRequested = false;
 
+let stopVideoRequested = false;
+
 
 const sceneNames = [
 
 "Intro",
-
 "Verse 1",
-
 "Chorus",
-
 "Verse 2",
-
 "Bridge",
-
 "Final Chorus",
-
 "Outro"
 
 ];
@@ -440,7 +518,6 @@ String(secs).padStart(2,"0")
 );
 
 }
-
 
 
 function scenePrompt(scene){
@@ -478,7 +555,6 @@ const ideas = [
 return common + ideas[scene - 1];
 
 }
-
 
 
 function createSceneCard(i){
@@ -554,11 +630,9 @@ id="output-${i}"
 
 `;
 
-
 return card;
 
 }
-
 
 
 audio.addEventListener(
@@ -609,7 +683,6 @@ URL.revokeObjectURL(objectUrl);
 });
 
 
-
 build.addEventListener(
 "click",
 function(){
@@ -635,8 +708,16 @@ createSceneCard(i)
 controlCard.style.display =
 "block";
 
+videoCard.style.display =
+"block";
+
 bar.style.width =
-"100%";
+"0%";
+
+videoBar.style.width =
+"0%";
+
+generateVideos.disabled = true;
 
 mainStatus.textContent =
 "✅ Song analyzed. 7 cinematic scenes created.";
@@ -647,7 +728,6 @@ behavior:"smooth"
 });
 
 });
-
 
 
 async function copyPrompt(i){
@@ -678,7 +758,6 @@ document.getElementById(
 }
 
 }
-
 
 
 async function generateImage(i){
@@ -762,13 +841,23 @@ data.mime +
 data.image;
 
 
+image.dataset.base64 =
+"data:" +
+data.mime +
+";base64," +
+data.image;
+
+
 output.appendChild(image);
 
 
 status.textContent =
 "✅ Scene " +
 i +
-" completed.";
+" image completed.";
+
+
+checkVideoReady();
 
 }
 
@@ -789,6 +878,39 @@ button.disabled = false;
 }
 
 
+function checkVideoReady(){
+
+let ready = true;
+
+for(
+let i = 1;
+i <= 7;
+i++
+){
+
+const output =
+document.getElementById(
+"output-" + i
+);
+
+if(
+!output ||
+!output.querySelector("img")
+){
+
+ready = false;
+
+break;
+
+}
+
+}
+
+generateVideos.disabled =
+!ready;
+
+}
+
 
 async function generateAllImages(){
 
@@ -797,6 +919,8 @@ stopRequested = false;
 generateAll.disabled = true;
 
 stopAll.disabled = false;
+
+bar.style.width = "0%";
 
 allStatus.textContent =
 "🚀 CORTEX is starting the 7-scene production...";
@@ -811,7 +935,7 @@ i++
 if(stopRequested){
 
 allStatus.textContent =
-"⛔ Generation stopped.";
+"⛔ Image generation stopped.";
 
 break;
 
@@ -844,7 +968,7 @@ bar.style.width =
 "100%";
 
 allStatus.textContent =
-"🎉 All 7 cinematic scenes have been generated.";
+"🎉 All 7 cinematic images have been generated.";
 
 }
 
@@ -852,8 +976,9 @@ generateAll.disabled = false;
 
 stopAll.disabled = true;
 
-}
+checkVideoReady();
 
+}
 
 
 stopAll.addEventListener(
@@ -868,10 +993,276 @@ allStatus.textContent =
 });
 
 
-
 generateAll.addEventListener(
 "click",
 generateAllImages
+);
+
+
+// =====================================================
+// IMAGE → VIDEO
+// =====================================================
+
+async function generateVideo(i){
+
+const output =
+document.getElementById(
+"output-" + i
+);
+
+const status =
+document.getElementById(
+"status-" + i
+);
+
+
+const image =
+output.querySelector("img");
+
+
+if(!image){
+
+throw new Error(
+"Scene " + i + " image not found."
+);
+
+}
+
+
+status.textContent =
+"🎥 Creating AI video for Scene " +
+i +
+"...";
+
+
+const prompt =
+document.getElementById(
+"prompt-" + i
+).value;
+
+
+const videoPrompt =
+prompt +
+" Smooth realistic cinematic camera movement, " +
+"subtle natural human motion, realistic vehicle motion, " +
+"professional music video camera movement, " +
+"high quality cinematic animation, no sudden distortion.";
+
+
+const response =
+await fetch(
+"/api/generate-video",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+image:
+image.src,
+
+prompt:
+videoPrompt
+
+})
+
+}
+);
+
+
+const data =
+await response.json();
+
+
+if(!response.ok){
+
+throw new Error(
+data.error ||
+"Video generation failed."
+);
+
+}
+
+
+const video =
+document.createElement("video");
+
+video.className =
+"video-preview";
+
+video.controls = true;
+
+video.playsInline = true;
+
+video.preload = "metadata";
+
+
+video.src =
+"data:" +
+data.mime +
+";base64," +
+data.video;
+
+
+const download =
+document.createElement("a");
+
+download.textContent =
+"⬇️ Download Scene " +
+i +
+" Video";
+
+download.style.display =
+"inline-block";
+
+download.style.marginTop =
+"10px";
+
+download.style.color =
+"#fff";
+
+download.style.fontWeight =
+"bold";
+
+
+download.href =
+video.src;
+
+download.download =
+"cortex-scene-" +
+i +
+".mp4";
+
+
+const box =
+document.createElement("div");
+
+box.className =
+"video-box";
+
+
+box.appendChild(video);
+
+box.appendChild(download);
+
+
+output.appendChild(box);
+
+
+status.textContent =
+"✅ Scene " +
+i +
+" video completed.";
+
+}
+
+
+async function generateAllVideos(){
+
+stopVideoRequested = false;
+
+generateVideos.disabled = true;
+
+stopVideos.disabled = false;
+
+videoBar.style.width = "0%";
+
+
+videoStatus.textContent =
+"🚀 CORTEX is starting AI video production...";
+
+
+for(
+let i = 1;
+i <= 7;
+i++
+){
+
+if(stopVideoRequested){
+
+videoStatus.textContent =
+"⛔ Video generation stopped.";
+
+break;
+
+}
+
+
+videoStatus.textContent =
+"🎥 Generating Video " +
+i +
+" of 7...";
+
+
+try{
+
+await generateVideo(i);
+
+}
+
+catch(error){
+
+document.getElementById(
+"status-" + i
+).textContent =
+"❌ Video error: " +
+error.message;
+
+videoStatus.textContent =
+"⚠️ Scene " +
+i +
+" failed. Continuing...";
+
+}
+
+
+const progress =
+Math.round(
+(i / 7) * 100
+);
+
+videoBar.style.width =
+progress + "%";
+
+}
+
+
+if(!stopVideoRequested){
+
+videoBar.style.width =
+"100%";
+
+videoStatus.textContent =
+"🎉 All 7 AI videos have been generated.";
+
+}
+
+generateVideos.disabled = false;
+
+stopVideos.disabled = true;
+
+}
+
+
+stopVideos.addEventListener(
+"click",
+function(){
+
+stopVideoRequested = true;
+
+videoStatus.textContent =
+"⛔ Stopping after the current video...";
+
+});
+
+
+generateVideos.addEventListener(
+"click",
+generateAllVideos
 );
 
 
@@ -880,5 +1271,3 @@ generateAllImages
 </body>
 
   </html>
-
-
